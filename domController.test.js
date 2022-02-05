@@ -2,10 +2,64 @@ const fs = require("fs");
 const initialHtml = fs.readFileSync("./index.html");
 const { getByText, screen } = require("@testing-library/dom");
 
-const { updateItemList, handleAddItem } = require("./domController");
+const { updateItemList, handleAddItem, handleUndo } = require("./domController");
 
 beforeEach(() => {
   document.body.innerHTML = initialHtml;
+});
+
+describe("tests with history", () => {
+
+  beforeEach(() => jest.spyOn(window, "addEventListener"));
+
+  afterEach(() => {
+    const popstateListeners = window
+      .addEventListener
+      .mock
+      .calls
+      .filter(([ eventName ]) => {
+        return eventName === "popstate"
+      });
+
+      popstateListeners.forEach(([eventName, handlerFn]) => {
+        window.removeEventListener(eventName, handlerFn);
+      });
+
+      jest.restoreAllMocks();
+  })
+
+  beforeEach(done => {
+    const clearHistory = () => {
+      if(history.state === null) {
+        window.removeEventListener("popstate", clearHistory);
+        return done();
+      }
+      history.back();
+    }
+    window.addEventListener("popstate", clearHistory);
+
+    clearHistory();
+  })
+  describe("handleUndo", () => {
+    test("going back from a non-initial state", done => {
+      window.addEventListener("popstate", () => {
+        expect(history.state).toEqual(null);
+        done();
+      });
+
+      history.pushState(
+        { inventory: { cheesecake: 5 } },
+        "title"
+      );
+      handleUndo();
+    });
+    test("going back from initial state", () => {
+      jest.spyOn(history, "back");
+      handleUndo();
+
+      expect(history.back.mock.calls).toHaveLength(0);
+    });
+  });
 });
 
 describe("updateItemList", () => {

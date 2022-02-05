@@ -28,6 +28,11 @@ const updateItemList = (inventory) => {
   window.document.body.appendChild(p);
 };
 
+const handleUndo = () => {
+  if(history.state === null) return;
+  history.back();
+};
+
 const handleAddItem = (event) => {
   event.preventDefault();
 
@@ -67,5 +72,9 @@ const checkFormValues = () => {
     submitButton.disabled = false;
   }
 };
+const handlePopstate = () => {
+  data.inventory = history.state ? history.state.inventory : {};
+  updateItemList(data.inventory);
+};
 
-module.exports = { updateItemList, handleAddItem, checkFormValues };
+module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handlePopstate };

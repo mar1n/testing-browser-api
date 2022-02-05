@@ -29,12 +29,22 @@ const updateItemList = (inventory) => {
   window.document.body.appendChild(p);
 };
 
+const handleUndo = () => {
+  if(history.state === null) return;
+  history.back();
+};
+
 const handleAddItem = (event) => {
   event.preventDefault();
 
   const { name, quantity } = event.target.elements;
   addItem(name.value, parseInt(quantity.value, 10));
 
+  history.pushState(
+    { inventory: { ...data.inventory } },
+    document.title
+    );
+  
   updateItemList(data.inventory);
 };
 
@@ -63,8 +73,12 @@ const checkFormValues = () => {
     submitButton.disabled = false;
   }
 };
+const handlePopstate = () => {
+  data.inventory = history.state ? history.state.inventory : {};
+  updateItemList(data.inventory);
+};
 
-module.exports = { updateItemList, handleAddItem, checkFormValues };
+module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handlePopstate };
 
 },{"./inventoryController":2}],2:[function(require,module,exports){
 const data = { inventory: {} };
@@ -75,7 +89,7 @@ const addItem = (itemName, quantity) => {
 module.exports = { data, addItem };
 
 },{}],3:[function(require,module,exports){
-const { handleAddItem, checkFormValues, updateItemList } = require("./domController");
+const { handleAddItem, checkFormValues, updateItemList, handleUndo, handlePopstate } = require("./domController");
 const { data } = require("./inventoryController");
 
 const form = document.getElementById("add-item-form");
@@ -83,6 +97,11 @@ form.addEventListener("submit", handleAddItem);
 form.addEventListener("input", checkFormValues);
 
 checkFormValues();
+
+const undoButton = document.getElementById("undo-button");
+undoButton.addEventListener("click", handleUndo);
+
+window.addEventListener("popstate", handlePopstate);
 
 const storedInventory = JSON.parse(localStorage.getItem("inventory"));
 
