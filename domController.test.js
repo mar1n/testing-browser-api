@@ -2,75 +2,27 @@ const fs = require("fs");
 const initialHtml = fs.readFileSync("./index.html");
 const { getByText, screen } = require("@testing-library/dom");
 
-const { updateItemList, handleAddItem, handleUndo } = require("./domController");
+const {
+  updateItemList,
+  handleAddItem,
+  handleUndo,
+  handlePopstate,
+} = require("./domController");
+
+const { clearHistoryHook, detachPopstateHandlers } = require("./testUtils");
 
 beforeEach(() => {
   document.body.innerHTML = initialHtml;
 });
 
-describe("tests with history", () => {
-
-  beforeEach(() => jest.spyOn(window, "addEventListener"));
-
-  afterEach(() => {
-    const popstateListeners = window
-      .addEventListener
-      .mock
-      .calls
-      .filter(([ eventName ]) => {
-        return eventName === "popstate"
-      });
-
-      popstateListeners.forEach(([eventName, handlerFn]) => {
-        window.removeEventListener(eventName, handlerFn);
-      });
-
-      jest.restoreAllMocks();
-  })
-
-  beforeEach(done => {
-    const clearHistory = () => {
-      if(history.state === null) {
-        window.removeEventListener("popstate", clearHistory);
-        return done();
-      }
-      history.back();
-    }
-    window.addEventListener("popstate", clearHistory);
-
-    clearHistory();
-  })
-  describe("handleUndo", () => {
-    test("going back from a non-initial state", done => {
-      window.addEventListener("popstate", () => {
-        expect(history.state).toEqual(null);
-        done();
-      });
-
-      history.pushState(
-        { inventory: { cheesecake: 5 } },
-        "title"
-      );
-      handleUndo();
-    });
-    test("going back from initial state", () => {
-      jest.spyOn(history, "back");
-      handleUndo();
-
-      expect(history.back.mock.calls).toHaveLength(0);
-    });
-  });
-});
-
 describe("updateItemList", () => {
-
   beforeEach(() => localStorage.clear());
 
   test("updates the DOM with the inventory items", () => {
     const inventory = {
       cheesecake: 5,
       "apple pie": 2,
-      "carrot cake": 6
+      "carrot cake": 6,
     };
     updateItemList(inventory);
 
@@ -89,7 +41,7 @@ describe("updateItemList", () => {
     updateItemList(inventory);
 
     expect(screen.getByText("apple pie - Quantity: 2")).toHaveStyle({
-      color: "red"
+      color: "red",
     });
   });
 
@@ -105,10 +57,12 @@ describe("updateItemList", () => {
   });
 
   test("updates the localStorage with the inventory", () => {
-    const inventory = { cheesecake: 5, "apple pie": 2};
+    const inventory = { cheesecake: 5, "apple pie": 2 };
     updateItemList(inventory);
 
-    expect(localStorage.getItem("inventory")).toEqual(JSON.stringify(inventory));
+    expect(localStorage.getItem("inventory")).toEqual(
+      JSON.stringify(inventory)
+    );
   });
 });
 
@@ -118,10 +72,10 @@ describe("handleAddItem", () => {
       preventDefault: jest.fn(),
       target: {
         elements: {
-          name: { value: "cheesecake"},
-          quantity: { value: "6"}
-        }
-      }
+          name: { value: "cheesecake" },
+          quantity: { value: "6" },
+        },
+      },
     };
 
     handleAddItem(event);
@@ -130,5 +84,49 @@ describe("handleAddItem", () => {
 
     const itemList = document.getElementById("item-list");
     expect(getByText(itemList, "cheesecake - Quantity: 6")).toBeInTheDocument();
-  })
-})
+  });
+});
+
+describe("tests with history", () => {
+  beforeEach(() => jest.spyOn(window, "addEventListener"));
+
+  afterEach(detachPopstateHandlers);
+
+  beforeEach(clearHistoryHook);
+
+  describe("handleUndo", () => {
+    test("going back from a non-initial state", (done) => {
+      window.addEventListener("popstate", () => {
+        expect(history.state).toEqual(null);
+        done();
+      });
+
+      history.pushState({ inventory: { cheesecake: 5 } }, "title");
+      handleUndo();
+    });
+    test("going back from initial state", () => {
+      jest.spyOn(history, "back");
+      handleUndo();
+
+      expect(history.back.mock.calls).toHaveLength(0);
+    });
+  });
+  describe("handlePopstate", () => {
+    test("updateing the item list with the current state", () => {
+      history.pushState(
+        { inventory: { cheesecake: 5, "carrot cake": 2 } },
+        "title"
+      );
+
+      handlePopstate();
+      const itemList = document.getElementById("item-list");
+      expect(itemList.childNodes).toHaveLength(2);
+      expect(
+        getByText(itemList, "cheesecake - Quantity: 5")
+      ).toBeInTheDocument();
+      expect(
+        getByText(itemList, "carrot cake - Quantity: 2")
+      ).toBeInTheDocument();
+    });
+  });
+});

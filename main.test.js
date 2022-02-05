@@ -1,6 +1,7 @@
 const fs = require("fs");
 const initialHtml = fs.readFileSync("./index.html");
 const { screen, getByText, fireEvent } = require("@testing-library/dom");
+const { clearHistoryHook } = require("./testUtils");
 
 beforeEach(() => localStorage.clear());
 
@@ -41,6 +42,35 @@ test("persists items between sessions", () => {
   expect(
     getByText(itemListAfter, "cheesecake - Quantity: 6")
   ).toBeInTheDocument();
+});
+
+describe("adding items", () => {
+  beforeEach(clearHistoryHook);
+
+  test("undo to empty list", () => {
+    const itemField = screen.getByPlaceholderText("Item name");
+    const submitBtn = screen.getByText("Add to inventory");
+    fireEvent.input(itemField, {
+      target: { value: "cheesecake" },
+      bubbles: true
+    });
+
+    const quantityField = screen.getByPlaceholderText("Quantity");
+    fireEvent.input(quantityField, {
+      target: { value: "6" },
+      bubbles: true
+    });
+
+    fireEvent.click(submitBtn);
+
+    expect(history.state).toEqual({ inventory: { cheesecake: 6} });
+    window.addEventListener("popstate", () => {
+      const itemList = document.getElementById("item-list");
+      expect(itemList).toBeEmptyDOMElement();
+      done();
+    });
+    fireEvent.click(screen.getByText("Undo"))
+  });
 });
 
 test("adding items through the form", () => {
