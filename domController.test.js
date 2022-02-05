@@ -100,8 +100,11 @@ describe("tests with history", () => {
         expect(history.state).toEqual(null);
         done();
       });
-
-      history.pushState({ inventory: { cheesecake: 5 } }, "title");
+      let newState = { cheesecake: 5 };
+      let newState2 = { cheesecake: 5, "carrot cake": 2 };
+      history.pushState({ inventory: { ...newState } }, "title");
+      //history.pushState({ inventory: { ...newState2 } }, "title");
+      //handleUndo();
       handleUndo();
     });
     test("going back from initial state", () => {
@@ -109,6 +112,22 @@ describe("tests with history", () => {
       handleUndo();
 
       expect(history.back.mock.calls).toHaveLength(0);
+    });
+  });
+  describe("handle Redo", () => {
+    test("going forward", () => {
+      window.addEventListener("popstate", () => {
+        expect(history.state).toEqual({ inventory: { cheesecake: 5, "carrot cake": 2 } })
+        done();
+      })
+      
+      let newState = { cheesecake: 5 };
+      let newState2 = { cheesecake: 5, "carrot cake": 2 };
+      history.pushState({ inventory: { ...newState } }, "title");
+      history.pushState({ inventory: { ...newState2 } }, "title");
+      
+      handleUndo();
+      handleRedo();
     });
   });
   describe("handlePopstate", () => {
