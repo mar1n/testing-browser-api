@@ -1,17 +1,20 @@
 const fs = require("fs");
 const initialHtml = fs.readFileSync("./index.html");
 const { screen, getByText, fireEvent } = require("@testing-library/dom");
-const { clearHistoryHook } = require("./testUtils");
+const { clearHistoryHook, detachPopstateHandlers } = require("./testUtils");
+
+beforeEach(clearHistoryHook);
 
 beforeEach(() => localStorage.clear());
 
 beforeEach(() => {
   document.body.innerHTML = initialHtml;
-
   jest.resetModules();
   require("./main");
+  jest.spyOn(window, "addEventListener");
 });
 
+afterEach(detachPopstateHandlers);
 
 test("persists items between sessions", () => {
   const itemField = screen.getByPlaceholderText("Item name");
@@ -45,31 +48,65 @@ test("persists items between sessions", () => {
 });
 
 describe("adding items", () => {
-  beforeEach(clearHistoryHook);
 
   test("undo to empty list", () => {
     const itemField = screen.getByPlaceholderText("Item name");
     const submitBtn = screen.getByText("Add to inventory");
     fireEvent.input(itemField, {
       target: { value: "cheesecake" },
-      bubbles: true
+      bubbles: true,
     });
 
     const quantityField = screen.getByPlaceholderText("Quantity");
     fireEvent.input(quantityField, {
       target: { value: "6" },
-      bubbles: true
+      bubbles: true,
     });
 
     fireEvent.click(submitBtn);
 
-    expect(history.state).toEqual({ inventory: { cheesecake: 6} });
+    expect(history.state).toEqual({ inventory: { cheesecake: 6 } });
     window.addEventListener("popstate", () => {
       const itemList = document.getElementById("item-list");
       expect(itemList).toBeEmptyDOMElement();
       done();
     });
-    fireEvent.click(screen.getByText("Undo"))
+    fireEvent.click(screen.getByText("Undo"));
+  });
+
+  test("undo to one item", (done) => {
+    const itemField = screen.getByPlaceholderText("Item name");
+    const quantityField = screen.getByPlaceholderText("Quantity");
+    const submitBtn = screen.getByText("Add to inventory");
+
+    fireEvent.input(itemField, {
+      target: { value: "cheesecake" },
+      bubbles: true,
+    });
+    fireEvent.input(quantityField, {
+      target: { value: "6" },
+      bubbles: true,
+    });
+    fireEvent.click(submitBtn);
+
+    fireEvent.input(itemField, {
+      target: { value: "carrot cake" },
+      bubbles: true,
+    });
+    fireEvent.input(quantityField, {
+      target: { value: "5" },
+      bubbles: true,
+    });
+    fireEvent.click(submitBtn);
+    window.addEventListener("popstate", () => {
+      const itemList = document.getElementById("item-list");
+      expect(itemList.children).toHaveLength(1);
+      expect(
+        getByText(itemList, "cheesecake - Quantity: 6")
+      ).toBeInTheDocument();
+      done();
+    });
+    fireEvent.click(screen.getByText("Undo"));
   });
 });
 
