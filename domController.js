@@ -32,6 +32,10 @@ const handleUndo = () => {
   if(history.state === null) return;
   history.back();
 };
+const handleRedo = () => {
+  if(history.state === null) return;
+  history.forward();
+};
 
 const handleAddItem = (event) => {
   event.preventDefault();
@@ -77,4 +81,4 @@ const handlePopstate = () => {
   updateItemList(data.inventory);
 };
 
-module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handlePopstate };
+module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate };

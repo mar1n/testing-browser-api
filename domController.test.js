@@ -6,6 +6,7 @@ const {
   updateItemList,
   handleAddItem,
   handleUndo,
+  handleRedo,
   handlePopstate,
 } = require("./domController");
 
@@ -103,8 +104,6 @@ describe("tests with history", () => {
       let newState = { cheesecake: 5 };
       let newState2 = { cheesecake: 5, "carrot cake": 2 };
       history.pushState({ inventory: { ...newState } }, "title");
-      //history.pushState({ inventory: { ...newState2 } }, "title");
-      //handleUndo();
       handleUndo();
     });
     test("going back from initial state", () => {
@@ -115,12 +114,7 @@ describe("tests with history", () => {
     });
   });
   describe("handle Redo", () => {
-    test("going forward", () => {
-      window.addEventListener("popstate", () => {
-        expect(history.state).toEqual({ inventory: { cheesecake: 5, "carrot cake": 2 } })
-        done();
-      })
-      
+    test("going forward", done => {
       let newState = { cheesecake: 5 };
       let newState2 = { cheesecake: 5, "carrot cake": 2 };
       history.pushState({ inventory: { ...newState } }, "title");
@@ -128,6 +122,15 @@ describe("tests with history", () => {
       
       handleUndo();
       handleRedo();
+      
+      expect(history.state).toMatchObject(expect.objectContaining({ inventory: { ...newState2 } }));
+      done();
+    });
+    test('going forward from initial state', () => {
+      jest.spyOn(history, "forward");
+
+      handleRedo();
+      expect(history.forward.mock.calls).toHaveLength(0);
     });
   });
   describe("handlePopstate", () => {
