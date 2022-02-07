@@ -18,13 +18,31 @@ beforeEach(() => {
 });
 
 describe("Counter", () => {
-  test("update counter element", () => {
-    const counterValue = { counter: 1 };
-    
-    updateCounter(counterValue);
+  describe("update dom element", () => {
+    test("update counter element", () => {
+      const counterValue = 1;
+  
+      updateCounter(counterValue);
+  
+      const counterField = document.getElementById("counter-view");
+      expect(getByText(counterField, "1")).toBeInTheDocument();
+    });
+  });
+  describe("add value", () => {
+    test("add value to counter and check updated element", () => {
+      const event = {
+        target: {
+          element: {
+            counterValue: { value: 1 }
+          }
+        }
+      };
 
-    const counterField = document.getElementById("counter-view");
-    expect(getByText(counterField, "1")).toBeInTheDocument();
+      handleAddCounter(event);
+
+      const counterField = document.getElementById("counter-view");
+      expect(getByText(counterField, "1")).toBeInTheDocument();
+    });
   });
 });
 

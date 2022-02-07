@@ -6,7 +6,7 @@ const updateCounter = (counterValue) => {
   addValue();
   const counterField = window.document.getElementById("counter-view");
   const p = window.document.createElement("p");
-  p.innerHTML = `${counterValue.counter}`;
+  p.innerHTML = `${counterValue}`;
   counterField.appendChild(p);
 }
 

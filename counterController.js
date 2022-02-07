@@ -1,6 +1,6 @@
 const counterValue = { counter: 0 };
-const addValue = function() {
-    counterValue.counter += 1;
+const addValue = function(value) {
+    counterValue.counter += value;
 };
 
 module.exports = { counterValue, addValue}

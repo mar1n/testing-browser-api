@@ -4,13 +4,13 @@ beforeEach(() => counterValue.counter = 0);
 
 describe("Counter", () => {
   test("add value", () => {
-      addValue();
-      expect(counterValue.counter).toEqual(1);
+      addValue(2);
+      expect(counterValue.counter).toEqual(2);
   });
   test("add multiple times", () => {
-      addValue();
-      addValue();
-      addValue();
-      expect(counterValue.counter).toEqual(3);
+      addValue(2);
+      addValue(4);
+      addValue(4);
+      expect(counterValue.counter).toEqual(10);
   });
 });
