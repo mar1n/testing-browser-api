@@ -3,11 +3,19 @@ const { counterValue, addValue } = require("./counterController");
 
 
 const updateCounter = (counterValue) => {
-  addValue();
+
   const counterField = window.document.getElementById("counter-view");
   const p = window.document.createElement("p");
   p.innerHTML = `${counterValue}`;
   counterField.appendChild(p);
+}
+
+const handleAddCounter = (event) => {
+  const { counter } = event.target.element;
+
+  addValue(counter.value);
+
+  updateCounter(counterValue.counter);
 }
 
 
@@ -92,4 +100,4 @@ const handlePopstate = () => {
   updateItemList(data.inventory);
 };
 
-module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate, updateCounter };
+module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate, updateCounter, handleAddCounter };

@@ -8,7 +8,8 @@ const {
   handleUndo,
   handleRedo,
   handlePopstate,
-  updateCounter
+  updateCounter,
+  handleAddCounter
 } = require("./domController");
 
 const { clearHistoryHook, detachPopstateHandlers } = require("./testUtils");
@@ -33,7 +34,7 @@ describe("Counter", () => {
       const event = {
         target: {
           element: {
-            counterValue: { value: 1 }
+            counter: { value: 1 }
           }
         }
       };
