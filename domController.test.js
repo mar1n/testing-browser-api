@@ -19,7 +19,9 @@ beforeEach(() => {
 
 describe("Counter", () => {
   test("update counter element", () => {
-    updateCounter();
+    const counterValue = { counter: 1 };
+    
+    updateCounter(counterValue);
 
     const counterField = document.getElementById("counter-view");
     expect(getByText(counterField, "1")).toBeInTheDocument();

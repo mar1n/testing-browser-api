@@ -2,7 +2,7 @@ const { addItem, data } = require("./inventoryController");
 const { counterValue, addValue } = require("./counterController");
 
 
-const updateCounter = () => {
+const updateCounter = (counterValue) => {
   addValue();
   const counterField = window.document.getElementById("counter-view");
   const p = window.document.createElement("p");
