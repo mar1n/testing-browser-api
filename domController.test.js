@@ -8,6 +8,7 @@ const {
   handleUndo,
   handleRedo,
   handlePopstate,
+  updateCounter
 } = require("./domController");
 
 const { clearHistoryHook, detachPopstateHandlers } = require("./testUtils");

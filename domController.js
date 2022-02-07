@@ -1,4 +1,15 @@
 const { addItem, data } = require("./inventoryController");
+const { counterValue, addValue } = require("./counterController");
+
+
+const updateCounter = () => {
+  addValue();
+  const counterField = window.document.getElementById("counter-view");
+  const p = window.document.createElement("p");
+  p.innerHTML = `${counterValue.counter}`;
+  counterField.appendChild(p);
+}
+
 
 const updateItemList = (inventory) => {
   
@@ -81,4 +92,4 @@ const handlePopstate = () => {
   updateItemList(data.inventory);
 };
 
-module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate };
+module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate, updateCounter };

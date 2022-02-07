@@ -10,14 +10,17 @@
     </style>
   </head>
   <body>
-    <h1>Inventory Contents</h1>
-    <ul id="item-list"></ul>
-    <p id="error-msg"></p>
-    <form id="add-item-form">
-      <input type="text" name="name" placeholder="Item name" />
-      <input type="number" name="quantity" placeholder="Quantity" />
-      <button type="submit">Add to inventory</button>
-    </form>
+    <div>
+      <h1>Inventory Contents</h1>
+      <ul id="item-list"></ul>
+      <p id="error-msg"></p>
+      <form id="add-item-form">
+        <input type="text" name="name" placeholder="Item name" />
+        <input type="number" name="quantity" placeholder="Quantity" />
+        <button type="submit">Add to inventory</button>
+      </form>
+    </div>
+    <div id="counter-view"></div>
     <button id="undo-button">Undo</button>
     <script src="bundle.js"></script>
   </body>
