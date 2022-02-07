@@ -16,6 +16,15 @@ beforeEach(() => {
   document.body.innerHTML = initialHtml;
 });
 
+describe("Counter", () => {
+  test("update counter element", () => {
+    updateCounter();
+
+    const counterField = document.getElementById("counter-view");
+    expect(getByText(counterField, "1")).toBeInTheDocument();
+  });
+});
+
 describe("updateItemList", () => {
   beforeEach(() => localStorage.clear());
 
