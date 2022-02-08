@@ -48,9 +48,9 @@ test("persists items between sessions", () => {
 });
 
 describe("counter", () => {
-  test("undo counter ", () => {
+  test("undo counter ", (done) => {
     const counterInput = screen.getByPlaceholderText("input-counter");
-    const buttonCounter = screen.getByPlaceholderText("button-plus");
+    const buttonCounter = document.getElementById("button-plus")
     fireEvent.input(counterInput, {
       target: { value: 1 },
       bubbles: true,
@@ -60,12 +60,12 @@ describe("counter", () => {
 
     expect(history.state).toEqual({ counter: 1});
     window.addEventListener("popstate", () => {
-      const counterField = document.getElementById("counter-view");
-      expect(counterField).toBeEmptyDOMElement();
+      const counterField = document.getElementById("counter-value");
+      expect(counterField.innerHTML).toEqual("0");
       done();
     });
 
-    fireEvent.click(screen.getByText("Undo"));
+    fireEvent.click(document.getElementById("button-minus"));
   });
 });
 

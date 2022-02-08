@@ -1,30 +1,31 @@
 const { addItem, data } = require("./inventoryController");
 const { counterValue, addValue } = require("./counterController");
 
-
 const updateCounter = (counterValue) => {
-
   const counterField = window.document.getElementById("counter-view");
+  
+  counterField.innerHTML = "";
+  
   const p = window.document.createElement("p");
+  p.setAttribute("id", "counter-value")
   p.innerHTML = `${counterValue}`;
   counterField.appendChild(p);
-}
+};
 
 const handleAddCounter = (event) => {
-  const { counter } = event.target.element;
+  // const { counter } = event.target.element;
+  const valuCounter = document.getElementById("input-counter").value;
 
-  addValue(counter.value);
-
+  addValue(parseInt(valuCounter, 10));
+  history.pushState({ counter: counterValue.counter }, "counter");
   updateCounter(counterValue.counter);
-}
-
+};
 
 const updateItemList = (inventory) => {
-  
-  if(!inventory === null) return;
+  if (!inventory === null) return;
 
   localStorage.setItem("inventory", JSON.stringify(inventory));
-  
+
   const inventoryList = window.document.getElementById("item-list");
 
   inventoryList.innerHTML = "";
@@ -48,11 +49,12 @@ const updateItemList = (inventory) => {
 };
 
 const handleUndo = () => {
-  if(history.state === null) return;
+  if (history.state === null) return;
+  console.log('test');
   history.back();
 };
 const handleRedo = () => {
-  if(history.state === null) return;
+  if (history.state === null) return;
   history.forward();
 };
 
@@ -62,11 +64,8 @@ const handleAddItem = (event) => {
   const { name, quantity } = event.target.elements;
   addItem(name.value, parseInt(quantity.value, 10));
 
-  history.pushState(
-    { inventory: { ...data.inventory } },
-    document.title
-    );
-  
+  history.pushState({ inventory: { ...data.inventory } }, document.title);
+
   updateItemList(data.inventory);
 };
 
@@ -96,8 +95,19 @@ const checkFormValues = () => {
   }
 };
 const handlePopstate = () => {
-  data.inventory = history.state ? history.state.inventory : {};
-  updateItemList(data.inventory);
+  //data.inventory = history.state ? history.state.inventory : {};
+  counterValue.counter = history.state ? history.state.counter : 0;
+  updateCounter(counterValue.counter)
+  //updateItemList(data.inventory);
 };
 
-module.exports = { updateItemList, handleAddItem, checkFormValues, handleUndo, handleRedo, handlePopstate, updateCounter, handleAddCounter };
+module.exports = {
+  updateItemList,
+  handleAddItem,
+  checkFormValues,
+  handleUndo,
+  handleRedo,
+  handlePopstate,
+  updateCounter,
+  handleAddCounter,
+};
